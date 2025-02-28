@@ -1,0 +1,80 @@
+
+.addjob-container {
+    display: flex;
+    justify-content: center;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    
+}
+
+.add-job-form {
+    position: relative;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px; 
+    border: 1px solid #777575;
+    border-radius: 15px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    max-width: 500px; 
+     text-align: left;
+    margin: 50px auto; 
+    min-height: 350px;
+}
+.add-job-form h2 {
+    margin-top: 0; 
+    padding-top: 0; 
+    margin-bottom: 20px; 
+    text-align: left;
+}
+
+
+  
+  .navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-image: url("/job.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+  }
+  
+.add-job-form label{
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.add-job-form input,
+.add-job-form textarea{
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 100%;
+
+}
+.joblist{
+    
+    color:#777575;
+
+}
+.add-job-form button{
+    padding: 10px 20px;
+    background-color: #05080c;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.add-job-form button:hover{
+    background-color: #2a3036;
+}
