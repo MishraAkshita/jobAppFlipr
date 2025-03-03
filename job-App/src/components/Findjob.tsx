@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import{useApplication} from "../hooks/useApplication";
+import { JobApplication, JobStatus } from "../types/types";
 import ApplyForm from "./apply"; 
 
 const FindJob: React.FC = () => {
-  const [jobs, setJobs] = useState<any[]>([]);
-  const [filteredJobs, setFilteredJobs] = useState<any[]>([]);
-  const [appliedJobs, setAppliedJobs] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<JobApplication[]>([]);
+  const [filteredJobs, setFilteredJobs] = useState<JobApplication[]>([]);
   const [filters, setFilters] = useState({
     title: "",
     location: "",
@@ -14,15 +15,15 @@ const FindJob: React.FC = () => {
     maxSalary: "",
   });
   const [showApplyForm, setShowApplyForm] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [selectedJob, setSelectedJob] = useState<JobApplication | null>(null);
   const [showAppliedJobs, setShowAppliedJobs] = useState(false); 
+
+  const { appliedJobs, addApplication, updateApplicationStatus } = useApplication();
 
   useEffect(() => {
     const storedJobs = JSON.parse(localStorage.getItem("jobs") || "[]");
     setJobs(storedJobs);
     setFilteredJobs(storedJobs);
-    const storedAppliedJobs = JSON.parse(localStorage.getItem("appliedJobs") || "[]");
-    setAppliedJobs(storedAppliedJobs);
   }, []);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,23 +43,14 @@ const FindJob: React.FC = () => {
     setFilteredJobs(filtered);
   };
 
-  const handleApplyClick = (job: any) => {
+  const handleApplyClick = (job: JobApplication) => {
     setSelectedJob(job);
     setShowApplyForm(true);
   };
 
-  const handleJobApplied = (job: any) => {
-    const updatedAppliedJobs = [...appliedJobs, { ...job, status: "Pending" }];
-    setAppliedJobs(updatedAppliedJobs);
-    localStorage.setItem("appliedJobs", JSON.stringify(updatedAppliedJobs));
+  const handleJobApplied = (job: JobApplication) => {
+    addApplication(job);
     setShowApplyForm(false);
-  };
-
-  const handleStatusChange = (index: number, newStatus: string) => {
-    const updatedJobs = [...appliedJobs];
-    updatedJobs[index].status = newStatus;
-    setAppliedJobs(updatedJobs);
-    localStorage.setItem("appliedJobs", JSON.stringify(updatedJobs));
   };
 
   return (
@@ -103,56 +95,52 @@ const FindJob: React.FC = () => {
 
         <div className="job-list mt-4">
           {(showAppliedJobs ? appliedJobs : filteredJobs).length > 0 ? (
-            (showAppliedJobs ? appliedJobs : filteredJobs).map((job, index) => (
-              <div className="job-card p-3 mb-3" key={index}>
-                <h4 className="mb-2">{job.title}</h4>
-                <p><strong>Company:</strong> {job.company}</p>
-                <p><strong>Location:</strong> {job.location}</p>
-                <p><strong>Salary:</strong> ${job.salary}</p>
-                <p>{job.description}</p>
+            (showAppliedJobs ? appliedJobs : filteredJobs).map((job) => {
+              const appliedJob = appliedJobs.find((j) => j.id === job.id) || job;
+              
+              return (
+                <div className="job-card p-3 mb-3" key={job.id}>
+                  <h4 className="mb-2">{job.title}</h4>
+                  <p><strong>Company:</strong> {job.company}</p>
+                  <p><strong>Location:</strong> {job.location}</p>
+                  <p><strong>Salary:</strong> ${job.salary}</p>
+                  <p>{job.description}</p>
 
-                {showAppliedJobs ? (
-                  <>
-                    <label><strong>Status:</strong></label>
-                    <select
-                      className="form-control mt-2"
-                      value={job.status || "Pending"}
-                      onChange={(e) => handleStatusChange(index, e.target.value)}
-                    >
-                      <option value="Pending">Pending</option>
-                      <option value="Interview Scheduled">Interview Scheduled</option>
-                      <option value="Accepted">Accepted</option>
-                      <option value="Rejected">Rejected</option>
-                    </select>
-                  </>
-                ) : (
-                  <button className="btn btn-primary" onClick={() => handleApplyClick(job)}>
-                    Apply Now
-                  </button>
-                )}
-              </div>
-            ))
+                  {showAppliedJobs ? (
+  <>
+    <label><strong>Status:</strong></label>
+    <select
+      className="form-control mt-2"
+      value={appliedJobs.find(j => j.id === job.id)?.status || "Pending"}
+      onChange={(e) => {
+        const newStatus = e.target.value as JobStatus;
+        updateApplicationStatus(job.id, newStatus);
+      }}
+    >
+      <option value="Pending">Pending</option>
+      <option value="Interview Scheduled">Interview Scheduled</option>
+      <option value="Accepted">Accepted</option>
+      <option value="Rejected">Rejected</option>
+    </select>
+  </>
+) : (
+  <button className="btn btn-primary" onClick={() => handleApplyClick(job)}>
+    Apply Now
+  </button>
+)}
+
+                </div>
+              );
+            })
           ) : (
             <p className="text-center mt-3">{showAppliedJobs ? "No applied jobs found" : "No jobs found"}</p>
           )}
         </div>
       </div>
 
-      {showApplyForm && <ApplyForm job={selectedJob} onClose={() => setShowApplyForm(false)} onApply={handleJobApplied} />}
+      {showApplyForm && <ApplyForm job={selectedJob!} onClose={() => setShowApplyForm(false)} onApply={handleJobApplied} />}
     </>
   );
 };
 
 export default FindJob;
-
-
-
-
-
-
-
-
-
-
-
-

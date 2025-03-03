@@ -1,26 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { JobApplication, JobStatus } from "../types/types";
 
-export function useApplication() {
-  const [applications, setApplications] = useState<JobApplication[]>([]);
+export  function useApplication() {
+  const [appliedJobs, setAppliedJobs] = useState<JobApplication[]>([]);
+
+  useEffect(() => {
+    const storedAppliedJobs = JSON.parse(localStorage.getItem("appliedJobs") || "[]");
+    setAppliedJobs(storedAppliedJobs);
+  }, []);
 
   const addApplication = (job: JobApplication) => {
-    setApplications((prev) => [...prev, job]);
+    const updatedJobs: JobApplication[] = [
+      ...appliedJobs,
+      { ...job, status: "Pending" as JobStatus },
+    ];
+    setAppliedJobs(updatedJobs);
+    localStorage.setItem("appliedJobs", JSON.stringify(updatedJobs));
   };
-
-  const updateApplication = (id: string, updatedData: Partial<JobApplication>) => {
-    setApplications((prev) =>
-      prev.map((job) => (job.id === id ? { ...job, ...updatedData } : job))
-    );
+  
+  const updateApplicationStatus = (id: string, newStatus: JobStatus) => {
+    setAppliedJobs((prevJobs) => {
+      const updatedJobs = prevJobs.map((job) =>
+        job.id === id ? { ...job, status: newStatus } : job
+      );
+      localStorage.setItem("appliedJobs", JSON.stringify(updatedJobs));
+      return updatedJobs; 
+    });
   };
+  
 
-  const deleteApplication = (id: string) => {
-    setApplications((prev) => prev.filter((job) => job.id !== id));
-  };
-
-  const filterApplications = (status: JobStatus) => {
-    return applications.filter((job) => job.status === status);
-  };
-
-  return { applications, addApplication, updateApplication, deleteApplication, filterApplications };
+  return { appliedJobs, addApplication, updateApplicationStatus };
 }

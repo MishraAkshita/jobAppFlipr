@@ -1,9 +1,11 @@
+export type JobStatus = "Pending" | "Interview Scheduled" | "Accepted" | "Rejected";
 
-
-export type JobStatus = "applied" | "interview" | "rejected" | "pending";
 export interface JobApplication {
   id: string;
   title: string;
   company: string;
-  status: JobStatus;
+  location: string;
+  salary: string;
+  description: string;
+  status?: JobStatus;
 }
